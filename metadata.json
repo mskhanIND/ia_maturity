@@ -1,0 +1,8 @@
+{
+  "name": "AlphaX IA Maturity Assessment",
+  "description": "Internal Audit Function Maturity Assessment aligned with the IIA Global Internal Audit Standards (GIAS) and regulatory requirements.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
