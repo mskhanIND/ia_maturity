@@ -18,7 +18,11 @@ import {
   X,
   ExternalLink,
   Activity,
-  Sparkles
+  Sparkles,
+  ArrowUpRight,
+  Users,
+  HardDrive,
+  Calendar
 } from 'lucide-react';
 
 export const PortalLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -164,6 +168,71 @@ export const PortalLayout: React.FC<{ children: React.ReactNode }> = ({ children
       {/* Main Content Area */}
       <main className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl mx-auto space-y-6">
+          {/* Top Trial Version Banner (Visible across all Customer Portal views) */}
+          {subscription.plan_tier === 'trial' && (
+            <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-orange-500/15 border-2 border-amber-300/80 rounded-2xl p-4 sm:p-5 shadow-sm no-print">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                {/* Left Side: Trial Status & Days Remaining */}
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
+                    <Sparkles className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-extrabold text-sm sm:text-base text-gray-900">
+                        {isAr ? 'النسخة التجريبية المجانية (14 يوماً)' : '14-Day Free Evaluation Trial'}
+                      </h3>
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-amber-200 text-amber-950 border border-amber-300 inline-flex items-center gap-1">
+                        <Calendar className="w-3.5 h-3.5 text-amber-800" />
+                        <span>
+                          {subscription.days_remaining} {isAr ? 'أيام متبقية' : 'Days Remaining'}
+                        </span>
+                      </span>
+                      <span className="text-[11px] font-semibold text-gray-500 hidden sm:inline-block">
+                        ({isAr ? 'ينتهي في:' : 'Expires:'} {subscription.trial_end_date})
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 font-medium">
+                      {isAr
+                        ? 'متاح لمنشأتكم الوصول التام لتقييمات نضج التدقيق الداخلي وإدارة المخاطر والضوابط الرقابية وفق معايير GIAS 2024.'
+                        : 'Your organization has full evaluation access to IA Maturity Assessments, Risk Registers, and Saudi Regulatory Controls.'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Side: Quotas & Upgrade CTA */}
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0">
+                  {/* Quota Metrics Badges */}
+                  <div className="flex items-center gap-2 text-xs bg-white/80 backdrop-blur-xs px-3 py-1.5 rounded-xl border border-amber-200 text-gray-700">
+                    <div className="flex items-center gap-1.5 font-semibold">
+                      <FileCheck2 className="w-3.5 h-3.5 text-[#12506E]" />
+                      <span>{subscription.used_assessments}/{subscription.max_assessments} {isAr ? 'تقييمات' : 'Assessments'}</span>
+                    </div>
+                    <span className="text-gray-300">|</span>
+                    <div className="flex items-center gap-1.5 font-semibold">
+                      <Users className="w-3.5 h-3.5 text-cyan-600" />
+                      <span>{subscription.used_team_members}/{subscription.max_team_members} {isAr ? 'مقاعد' : 'Seats'}</span>
+                    </div>
+                    <span className="text-gray-300">|</span>
+                    <div className="flex items-center gap-1.5 font-semibold hidden md:flex">
+                      <HardDrive className="w-3.5 h-3.5 text-purple-600" />
+                      <span>{subscription.max_storage_gb} GB</span>
+                    </div>
+                  </div>
+
+                  {/* Upgrade / Admin Settings Button */}
+                  <button
+                    onClick={() => setView('admin_settings')}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition-all"
+                  >
+                    <span>{isAr ? 'إدارة الخطة والترقية' : 'Manage / Upgrade Plan'}</span>
+                    <ArrowUpRight className="w-4 h-4 rtl:rotate-90" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {children}
         </div>
       </main>

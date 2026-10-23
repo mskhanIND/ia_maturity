@@ -374,7 +374,31 @@ export interface EmailNotificationItem {
   days_until_deadline?: number;
 }
 
-export type SubscriptionTier = 'trial' | 'professional' | 'enterprise';
+export type SubscriptionTier = 'trial' | 'standard' | 'enterprise' | 'custom';
+
+export interface PlanFeatureDefinition {
+  id: string;
+  name: string;
+  name_ar: string;
+  category: 'core' | 'analytics' | 'compliance' | 'collaboration' | 'infrastructure';
+  enabled: boolean;
+}
+
+export interface TierDefinition {
+  id: string;
+  name: string;
+  name_ar: string;
+  tier_code: SubscriptionTier;
+  price_sar_monthly: number;
+  price_sar_annual: number;
+  is_trial: boolean;
+  trial_duration_days?: number;
+  max_assessments: number;
+  max_team_members: number;
+  max_storage_gb: number;
+  features: PlanFeatureDefinition[];
+  frappe_doctype: string;
+}
 
 export interface SubscriptionPlan {
   plan_tier: SubscriptionTier;
@@ -393,6 +417,8 @@ export interface SubscriptionPlan {
   used_storage_gb: number;
   features: string[];
   features_ar: string[];
+  assigned_org_id?: string;
+  assigned_org_name?: string;
 }
 
 export interface WorkflowConfig {

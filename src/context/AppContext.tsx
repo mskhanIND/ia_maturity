@@ -12,7 +12,8 @@ import {
   EmailNotificationItem,
   SubscriptionPlan,
   WorkflowConfig,
-  FrappeSyncConfig
+  FrappeSyncConfig,
+  TierDefinition
 } from '../types';
 import { QUESTIONS, SECTIONS, DEFAULT_BANDS, TEMPLATE_INFO } from '../data/templateData';
 import {
@@ -32,6 +33,7 @@ import {
 import { INITIAL_ACTIVITY_LOGS } from '../data/activityLogData';
 import { INITIAL_QUESTION_COMMENTS } from '../data/commentData';
 import { INITIAL_EMAIL_NOTIFICATIONS } from '../data/emailNotificationData';
+import { INITIAL_TIERS } from '../data/subscriptionTiersData';
 import { computeScores, PRIORITY, LETTERS } from '../utils/scoring';
 import { calculateClosureStats, letterForClosureTime, describeClosureStats } from '../utils/issues';
 import { Language } from '../utils/i18n';
@@ -214,6 +216,9 @@ export interface AppContextType {
   updateWorkflowConfig: (newConfig: Partial<WorkflowConfig>) => void;
   frappeConfig: FrappeSyncConfig;
   updateFrappeConfig: (newConfig: Partial<FrappeSyncConfig>) => void;
+  tiers: TierDefinition[];
+  updateTier: (tierId: string, updated: Partial<TierDefinition>) => void;
+  addTier: (newTier: TierDefinition) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -235,6 +240,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [incidents] = useState<SecurityIncident[]>(SEED_INCIDENTS);
   const [followUps, setFollowUps] = useState<FollowUpLog[]>(SEED_FOLLOW_UPS);
   const [notifications, setNotifications] = useState<EmailNotificationItem[]>(INITIAL_EMAIL_NOTIFICATIONS);
+  const [tiers, setTiers] = useState<TierDefinition[]>(INITIAL_TIERS);
 
   const [subscription, setSubscription] = useState<SubscriptionPlan>({
     plan_tier: 'trial',
@@ -1009,6 +1015,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     });
   };
 
+  const updateTier = (tierId: string, updated: Partial<TierDefinition>) => {
+    setTiers(prev => prev.map(t => (t.id === tierId ? { ...t, ...updated } : t)));
+    logActivity({
+      action: 'SUBSCRIPTION_UPDATED',
+      actionLabel: 'Subscription Tier Configured',
+      actionLabelAr: 'تحديث إعدادات باقة الاشتراك',
+      details: `Updated subscription tier ${tierId} via Frappe Framework management desk.`,
+      detailsAr: `تم تحديث خطة باقة الاشتراك في لوحة إدارة فرابي.`,
+      status: 'Success',
+    });
+  };
+
+  const addTier = (newTier: TierDefinition) => {
+    setTiers(prev => [...prev, newTier]);
+    logActivity({
+      action: 'SUBSCRIPTION_UPDATED',
+      actionLabel: 'New Subscription Plan Defined',
+      actionLabelAr: 'إنشاء باقة اشتراك جديدة',
+      details: `Defined new tier "${newTier.name}" with Frappe DocType sync.`,
+      detailsAr: `تم إنشاء باقة اشتراك جديدة "${newTier.name_ar}".`,
+      status: 'Success',
+    });
+  };
+
   const updateWorkflowConfig = (newConfig: Partial<WorkflowConfig>) => {
     setWorkflowConfig(prev => ({ ...prev, ...newConfig }));
     logActivity({
@@ -1176,6 +1206,79 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       isVerified: true,
     };
 
+    // Automatically provision 14-Day Free Evaluation Trial for new organization
+    const today = new Date();
+    const trialEnd = new Date(today);
+    trialEnd.setDate(trialEnd.getDate() + 14);
+
+    const trialPlan: SubscriptionPlan = {
+      plan_tier: 'trial',
+      plan_name: 'Trial Tier (14-Day Free Evaluation)',
+      plan_name_ar: 'النسخة التجريبية المجانية (14 يوماً)',
+      status: 'active',
+      trial_start_date: today.toISOString().split('T')[0],
+      trial_end_date: trialEnd.toISOString().split('T')[0],
+      days_remaining: 14,
+      trial_duration_days: 14,
+      max_assessments: 5,
+      used_assessments: 0,
+      max_team_members: 5,
+      used_team_members: 1,
+      max_storage_gb: 5,
+      used_storage_gb: 0.1,
+      assigned_org_id: orgId,
+      assigned_org_name: orgName,
+      features: [
+        '20-Question GIAS 2024 Maturity Assessment',
+        'Saudi Unified Regulatory Catalog (NCA, SAMA, CMA, PDPL)',
+        'Anonymous Peer Benchmarking (5+ Peers)',
+        'Automated Audit Issue Closure Metric (Q13)',
+        'Official Executive PDF Report & Radar Scorecards',
+        'Threaded Consultant Clarifications',
+        'Independent Frappe Framework Deployment Export',
+      ],
+      features_ar: [
+        'استبيان نضج التدقيق الداخلي (20 سؤالاً وفق معايير GIAS 2024)',
+        'دليل الضوابط الرقابية الموحد للمملكة',
+        'المقارنة المعيارية المجهولة مع النظراء',
+        'محرك الاحتساب الآلي لمتوسط إغلاق الملاحظات (Q13)',
+        'إصدار التقرير الرسمي لمجلس الإدارة وبطاقات الأداء',
+        'نظام الاستفسارات والملاحظات الأساسية',
+        'تصدير ونشر مستقل على بيئة منصة فرابي (Frappe Framework)',
+      ],
+    };
+
+    setSubscription(trialPlan);
+
+    // Trigger welcome and trial activation email notification
+    triggerEmailNotification({
+      assessment_id: 'ASM-NEW',
+      assessment_name: `Welcome - ${orgName}`,
+      entity_name: orgName,
+      recipient_email: email,
+      recipient_name: fullName,
+      trigger_type: 'reminder_followup',
+      subject: `[AlphaX GRC] Welcome! Your 14-Day Free Evaluation Trial is Activated for ${orgName}`,
+      subject_ar: `[ألفا إكس للحوكمة] مرحباً بكم! تم تفعيل نسختكم التجريبية المجانية لمدة 14 يوماً لمنشأة ${orgName}`,
+      body: `Dear ${fullName},\n\nWelcome to AlphaX GRC. Your 14-Day Free Evaluation Trial has been successfully provisioned for ${orgName}.\n\nEvaluation Details:\n- Plan: 14-Day Free Evaluation Trial\n- Quotas: 5 Assessments, 5 Team Seats, 5 GB Encrypted Evidence Storage\n- Duration: 14 Days (Expires: ${trialEnd.toISOString().split('T')[0]})\n- Architecture: Standalone Frappe Framework Ready\n\nYou can begin your Internal Audit Maturity Assessment directly from your Client Portal.\n\nWarm regards,\nAlphaX GRC Support & Provisioning Team\nRiyadh, Kingdom of Saudi Arabia`,
+      body_ar: `عزيزي ${fullName}،\n\nأهلاً بكم في منصة ألفا إكس للحوكمة وإدارة المخاطر والالتزام والتدقيق الداخلي (AlphaX GRC). تم بنجاح تفعيل النسخة التجريبية المجانية لمنشأتكم (${orgName}).\n\nتفاصيل النسخة التجريبية:\n- الباقة: التقييم المجاني لمدة 14 يوماً\n- الحصص: 5 تقييمات، 5 مقاعد لفريق العمل، 5 جيجابايت مساحة تخزين مشفرة للأدلة\n- المدة: 14 يوماً (تنتهي بتاريخ: ${trialEnd.toISOString().split('T')[0]})\n- التوافقية: جاهزة للنشر المستقل على منصة فرابي (Frappe Framework)\n\nيمكنكم بدء تقييم نضج إدارة التدقيق الداخلي مباشرة من بوابة العميل.\n\nفريق دعم ألفا إكس للحوكمة\nالرياض، المملكة العربية السعودية`,
+      status: 'delivered',
+      urgency: 'normal',
+    });
+
+    logActivity({
+      action: 'SUBSCRIPTION_UPDATED',
+      actionLabel: '14-Day Trial Provisioned',
+      actionLabelAr: 'تفعيل النسخة التجريبية المجانية (14 يوماً)',
+      details: `Automatically provisioned 14-day evaluation trial with 5 assessment quota for new organization ${orgName} (${email}).`,
+      detailsAr: `تم تفعيل النسخة التجريبية المجانية تلقائياً لمدة 14 يوماً للمنشأة الجديدة ${orgName}.`,
+      status: 'Success',
+      userId: newProfile.id,
+      userName: fullName,
+      userRole: newProfile.roleTitle,
+      orgName: orgName,
+    });
+
     setCurrentUser(newProfile);
     setShowAuthModal(false);
     setView('portal_dashboard');
@@ -1322,6 +1425,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateWorkflowConfig,
         frappeConfig,
         updateFrappeConfig,
+        tiers,
+        updateTier,
+        addTier,
       }}
     >
       {children}

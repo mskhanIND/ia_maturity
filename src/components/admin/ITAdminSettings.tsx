@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
 import { t } from '../../utils/i18n';
 import { FRAPPE_DOCTYPES, FRAPPE_HOOKS_PY, FRAPPE_INSTALL_INSTRUCTIONS } from '../../data/frappeExportData';
+import { SubscriptionManagement } from './SubscriptionManagement';
 import { EmailNotificationItem, SubscriptionTier } from '../../types';
 import {
   Server,
@@ -115,11 +116,11 @@ export const ITAdminSettings: React.FC = () => {
         max_team_members: 5,
         max_storage_gb: 5,
       });
-    } else if (tier === 'professional') {
+    } else if (tier === 'standard') {
       updateSubscription({
-        plan_tier: 'professional',
-        plan_name: 'Professional GRC Advisory Tier',
-        plan_name_ar: 'الخطة الاحترافية لاستشارات الحوكمة',
+        plan_tier: 'standard',
+        plan_name: 'Standard GRC Advisory Tier',
+        plan_name_ar: 'الخطة القياسية لاستشارات الحوكمة',
         max_assessments: 25,
         max_team_members: 15,
         max_storage_gb: 50,
@@ -483,205 +484,7 @@ export const ITAdminSettings: React.FC = () => {
       {/* TAB 2: SUBSCRIPTIONS & 14-DAY TRIAL VERSION */}
       {/* ========================================================= */}
       {activeTab === 'subscriptions' && (
-        <div className="space-y-6">
-          {/* Active Plan Banner */}
-          <div className="bg-gradient-to-r from-[#12506E] to-[#1e3a47] text-white rounded-2xl p-6 sm:p-8 shadow-md relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-10">
-              <Sparkles className="w-48 h-48" />
-            </div>
-
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold uppercase bg-amber-400 text-gray-900 shadow-sm">
-                    {subscription.plan_tier.toUpperCase()} PLAN
-                  </span>
-                  {subscription.plan_tier === 'trial' && (
-                    <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/20 text-white">
-                      {isAr
-                        ? `متبقي ${subscription.days_remaining} أيام من التقييم المجاني`
-                        : `${subscription.days_remaining} Days Remaining in 14-Day Trial`}
-                    </span>
-                  )}
-                </div>
-                <h2 className="text-2xl font-bold">
-                  {isAr ? subscription.plan_name_ar : subscription.plan_name}
-                </h2>
-                <p className="text-xs sm:text-sm text-cyan-100 max-w-xl">
-                  {isAr
-                    ? 'تحكم في سعة الحصص، وتمديد فترة التقييم المجاني، وإتاحة ميزات الذكاء الاصطناعي والمقارنة المعيارية.'
-                    : 'Manage organization quotas, extend evaluation trial periods, and toggle enterprise governance capabilities.'}
-                </p>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="flex flex-col gap-2 shrink-0">
-                <div className="text-xs font-semibold text-cyan-200">{isAr ? 'تمديد فوري للمهلة التجريبية:' : 'Quick Trial Extension:'}</div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleExtendTrial(7)}
-                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold border border-white/20 transition-all"
-                  >
-                    +7 Days
-                  </button>
-                  <button
-                    onClick={() => handleExtendTrial(14)}
-                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-bold border border-white/20 transition-all"
-                  >
-                    +14 Days
-                  </button>
-                  <button
-                    onClick={() => handleExtendTrial(30)}
-                    className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-gray-900 rounded-lg text-xs font-bold transition-all shadow-sm"
-                  >
-                    +30 Days
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quota Progress Trackers */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {/* Quota 1: Assessments */}
-            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
-                  <FileCheck2 className="w-4 h-4 text-[#12506E]" />
-                  <span>{t('quota_assessments', language)}</span>
-                </div>
-                <span className="font-mono text-xs font-bold text-gray-900">
-                  {subscription.used_assessments} / {subscription.max_assessments}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className="bg-[#12506E] h-2.5 rounded-full transition-all"
-                  style={{ width: `${Math.min(100, (subscription.used_assessments / subscription.max_assessments) * 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex items-center justify-between text-[11px] text-gray-500">
-                <span>{Math.round((subscription.used_assessments / subscription.max_assessments) * 100)}% {isAr ? 'مستخدم' : 'utilized'}</span>
-                <span>{subscription.max_assessments - subscription.used_assessments} {isAr ? 'متبقي' : 'remaining'}</span>
-              </div>
-            </div>
-
-            {/* Quota 2: Team Members */}
-            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
-                  <Users className="w-4 h-4 text-emerald-600" />
-                  <span>{t('quota_team', language)}</span>
-                </div>
-                <span className="font-mono text-xs font-bold text-gray-900">
-                  {subscription.used_team_members} / {subscription.max_team_members}
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className="bg-emerald-600 h-2.5 rounded-full transition-all"
-                  style={{ width: `${Math.min(100, (subscription.used_team_members / subscription.max_team_members) * 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex items-center justify-between text-[11px] text-gray-500">
-                <span>{Math.round((subscription.used_team_members / subscription.max_team_members) * 100)}% {isAr ? 'مستخدم' : 'utilized'}</span>
-                <span>{subscription.max_team_members - subscription.used_team_members} {isAr ? 'مقاعد متاحة' : 'seats available'}</span>
-              </div>
-            </div>
-
-            {/* Quota 3: Encrypted Evidence Storage */}
-            <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs font-bold text-gray-700">
-                  <HardDrive className="w-4 h-4 text-purple-600" />
-                  <span>{t('quota_storage', language)}</span>
-                </div>
-                <span className="font-mono text-xs font-bold text-gray-900">
-                  {subscription.used_storage_gb} GB / {subscription.max_storage_gb} GB
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                <div
-                  className="bg-purple-600 h-2.5 rounded-full transition-all"
-                  style={{ width: `${Math.min(100, (subscription.used_storage_gb / subscription.max_storage_gb) * 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex items-center justify-between text-[11px] text-gray-500">
-                <span>{Math.round((subscription.used_storage_gb / subscription.max_storage_gb) * 100)}% {isAr ? 'مستخدم' : 'utilized'}</span>
-                <span>{(subscription.max_storage_gb - subscription.used_storage_gb).toFixed(1)} GB {isAr ? 'متبقي' : 'free'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Tier Switcher & Adjustments */}
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-5">
-            <h4 className="font-bold text-sm text-gray-900">
-              {isAr ? 'تعديل مستوى الاشتراك وتخصيص الحصص' : 'Subscription Tier Adjustments & Overrides'}
-            </h4>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <button
-                onClick={() => handleSwitchTier('trial')}
-                className={`p-4 rounded-xl border text-start transition-all space-y-2 ${
-                  subscription.plan_tier === 'trial'
-                    ? 'border-[#12506E] bg-cyan-50/40 shadow-sm'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-gray-900">{t('plan_tier_trial', language)}</span>
-                  {subscription.plan_tier === 'trial' && <CheckCircle2 className="w-4 h-4 text-[#12506E]" />}
-                </div>
-                <p className="text-xs text-gray-500">
-                  {isAr ? 'تقييم مجاني 14 يوماً مع 5 تقييمات و5 مقاعد لفريق العمل.' : '14-Day Free Evaluation with 5 assessments and 5 team member seats.'}
-                </p>
-                <div className="text-[11px] font-bold text-[#12506E]">
-                  {isAr ? 'الخيار الافتراضي للتجربة' : 'Evaluation Baseline'}
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleSwitchTier('professional')}
-                className={`p-4 rounded-xl border text-start transition-all space-y-2 ${
-                  subscription.plan_tier === 'professional'
-                    ? 'border-[#12506E] bg-cyan-50/40 shadow-sm'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-gray-900">{t('plan_tier_pro', language)}</span>
-                  {subscription.plan_tier === 'professional' && <CheckCircle2 className="w-4 h-4 text-[#12506E]" />}
-                </div>
-                <p className="text-xs text-gray-500">
-                  {isAr ? 'حتى 25 تقييماً، 15 مقعداً، 50 جيجابايت تخزين ومقارنة معيارية كاملة.' : 'Up to 25 assessments, 15 team seats, 50 GB storage with full benchmarking.'}
-                </p>
-                <div className="text-[11px] font-bold text-emerald-700">
-                  {isAr ? 'مناسب للمنشآت المتوسطة' : 'Mid-Market & Advisory'}
-                </div>
-              </button>
-
-              <button
-                onClick={() => handleSwitchTier('enterprise')}
-                className={`p-4 rounded-xl border text-start transition-all space-y-2 ${
-                  subscription.plan_tier === 'enterprise'
-                    ? 'border-[#12506E] bg-cyan-50/40 shadow-sm'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-gray-900">{t('plan_tier_enterprise', language)}</span>
-                  {subscription.plan_tier === 'enterprise' && <CheckCircle2 className="w-4 h-4 text-[#12506E]" />}
-                </div>
-                <p className="text-xs text-gray-500">
-                  {isAr ? 'تقييمات غير محدودة، نشر سيادي على بيئة فرابي المستقلة، دعم مخصص.' : 'Unlimited assessments, standalone Frappe hosting, multi-tenant isolation.'}
-                </p>
-                <div className="text-[11px] font-bold text-purple-700">
-                  {isAr ? 'مخصص للقطاعات الحيوية' : 'Sovereign Enterprise'}
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
+        <SubscriptionManagement />
       )}
 
       {/* ========================================================= */}

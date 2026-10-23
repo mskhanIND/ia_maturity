@@ -11,8 +11,7 @@ import {
   ShieldCheck,
   CheckCircle2,
   Building,
-  Plus,
-  Sparkles
+  Plus
 } from 'lucide-react';
 
 export const PortalDashboard: React.FC = () => {
@@ -38,41 +37,6 @@ export const PortalDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6 text-start">
-      {/* 14-Day Free Evaluation Trial Banner */}
-      {subscription.plan_tier === 'trial' && (
-        <div className="p-4 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent rounded-xl border border-amber-300 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold shrink-0">
-              <Sparkles className="w-5 h-5 text-amber-600" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-gray-900 text-sm">
-                  {isAr ? 'النسخة التجريبية المجانية (14 يوماً)' : '14-Day Free Evaluation Trial'}
-                </span>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-200 text-amber-900">
-                  {subscription.days_remaining} {isAr ? 'أيام متبقية' : 'Days Remaining'}
-                </span>
-              </div>
-              <p className="text-gray-600 text-[11px] mt-0.5">
-                {isAr
-                  ? `تم استهلاك ${subscription.used_assessments} من أصل ${subscription.max_assessments} تقييمات، و ${subscription.used_team_members}/${subscription.max_team_members} مقاعد فريق العمل.`
-                  : `Utilizing ${subscription.used_assessments}/${subscription.max_assessments} assessments quota and ${subscription.used_team_members}/${subscription.max_team_members} team seats.`}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setView('admin_settings')}
-              className="px-3.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-sm transition-all whitespace-nowrap"
-            >
-              {isAr ? 'إدارة الاشتراك والتمديد' : 'Manage Plan & Quotas'}
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Welcome Banner */}
       <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">

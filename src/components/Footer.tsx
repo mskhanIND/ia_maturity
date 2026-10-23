@@ -14,8 +14,8 @@ export const Footer: React.FC = () => {
           {/* Col 1: About IRSAA GRC */}
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#12506E] flex items-center justify-center font-bold text-white text-base shadow-sm">
-                IRSAA
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#12506E] to-[#0a2f42] flex items-center justify-center font-black text-white text-base shadow-sm">
+                αX
               </div>
               <span className="font-bold text-lg text-white">
                 {t('brand_product', language)}

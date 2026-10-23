@@ -3,7 +3,7 @@ export type Language = 'en' | 'ar';
 export const TRANSLATIONS = {
   en: {
     // Brand & Header
-    brand_product: "IRSAA GRC & Audit Excellence",
+    brand_product: "AlphaX GRC",
     brand_company: "IRSAA Business Solutions",
     brand_tagline: "Integrated Governance, Risk, Compliance & Internal Audit Platform",
     confidential: "Confidential",
@@ -158,7 +158,7 @@ export const TRANSLATIONS = {
   },
   ar: {
     // Brand & Header
-    brand_product: "إرساء للحوكمة والتدقيق الداخلي",
+    brand_product: "ألفا إكس للحوكمة (AlphaX GRC)",
     brand_company: "إرساء لحلول الأعمال",
     brand_tagline: "المنصة المتكاملة للحوكمة وإدارة المخاطر والالتزام والتدقيق الداخلي",
     confidential: "سري للغاية",

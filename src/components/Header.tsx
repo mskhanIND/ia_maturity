@@ -65,20 +65,23 @@ export const Header: React.FC = () => {
               onClick={() => setView('website_home')}
               className="flex items-center gap-3 group text-start focus:outline-none"
             >
-              <div className="w-9 h-9 rounded-lg bg-[#12506E] flex items-center justify-center font-bold text-white text-base tracking-wider border border-[#2b7296] shadow-sm">
-                IRSAA
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#12506E] to-[#0a2f42] flex items-center justify-center font-black text-white text-lg tracking-tight border border-[#2b7296] shadow-sm">
+                αX
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-base sm:text-lg tracking-tight text-white group-hover:text-cyan-400 transition-colors">
                     {t('brand_product', language)}
                   </span>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-gray-800 text-cyan-300 border border-gray-700 hidden sm:inline-block">
+                  <span
+                    className="text-[10px] font-semibold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 hidden sm:inline-block cursor-help"
+                    title="Benchmarked against IIA Global Internal Audit Standards (GIAS 2024)"
+                  >
                     GIAS 2024
                   </span>
                 </div>
                 <div className="text-[11px] text-gray-400 hidden sm:block">
-                  {t('location_hq', language)}
+                  {t('brand_company', language)} · {t('location_hq', language)}
                 </div>
               </div>
             </button>

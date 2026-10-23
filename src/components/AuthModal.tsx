@@ -114,15 +114,15 @@ export const AuthModal: React.FC = () => {
         {/* Top Brand Header */}
         <div className="bg-[#181818] text-white px-6 py-4 flex items-center justify-between border-b border-gray-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#12506E] text-white font-bold flex items-center justify-center text-xs border border-[#2b7296]">
-              IRSAA
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#12506E] to-[#0a2f42] text-white font-black flex items-center justify-center text-sm border border-[#2b7296]">
+              αX
             </div>
             <div>
               <h3 className="font-bold text-base leading-none text-white">
-                IRSAA GRC Platform
+                AlphaX GRC
               </h3>
               <p className="text-[11px] text-gray-400 mt-1">
-                Riyadh, Kingdom of Saudi Arabia
+                IRSAA Business Solutions · Riyadh, Kingdom of Saudi Arabia
               </p>
             </div>
           </div>
